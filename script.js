@@ -388,15 +388,20 @@ function initializeButtons() {
   })
 
   // === Botão de Música ===
-  musicBtn.addEventListener("click", () => {
-    if (music.paused) {
-      music.play()
-      musicBtn.classList.add("playing")
-    } else {
-      music.pause()
-      musicBtn.classList.remove("playing")
-    }
-  })
+musicBtn.addEventListener("click", () => {
+  const icon = musicBtn.querySelector(".btn-icon")
+
+  if (music.paused) {
+    music.play()
+    musicBtn.classList.add("playing")
+    icon.textContent = "🎵" // ícone quando a música toca
+  } else {
+    music.pause()
+    musicBtn.classList.remove("playing")
+    icon.textContent = "🔇" // ícone quando a música pausa
+  }
+})
+
 
   // === Botão de Minijogos ===
   gamesBtn.addEventListener("click", openGamesModal)
@@ -414,3 +419,4 @@ function initializeButtons() {
     }
   })
 }
+
