@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aniversário Especial 💕</title>
+    <title>Seu Dia 💕</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -12,12 +12,25 @@
         <span>💕</span>
         <span>💕</span>
         <span>💕</span>
+        <span>💘</span>
+        <span>💓</span>
+        <span>💜</span>
+        <span>🤍</span>
+        <span>💗</span>
+        <span>💞</span>
+        <span>💖</span>
+        <span>💝</span>
+        <span>❤️</span>
         <span>💕</span>
-        <span>💕</span>
-        <span>💕</span>
-        <span>💕</span>
-        <span>💕</span>
-        <span>💕</span>
+        <span>💘</span>
+        <span>💓</span>
+        <span>💜</span>
+        <span>🤍</span>
+        <span>💗</span>
+        <span>💞</span>
+        <span>💖</span>
+        <span>💝</span>
+        <span>❤️</span>
     </div>
 
     <header>
@@ -43,24 +56,29 @@
         <audio id="bg-music" src="audio/Lady Gaga, Bruno Mars - Die With A Smile.mp3"></audio>
     </header>
 
-    <!-- Modal de Minijogos -->
+    <!-- Minigames -->
     <div id="games-modal" class="modal">
         <div class="modal-content">
+
             <button class="close-modal">&times;</button>
             <h3>Escolha um Minijogo 🎮</h3>
             <div class="games-list">
+
                 <button class="game-card" data-game="memory">
                     <span class="game-icon">🧠</span>
                     <span class="game-title">Jogo da Memória</span>
                 </button>
+                
+                <button class="game-card" data-game="urso">
+    <span class="game-icon">🧸</span>
+    <span class="game-title">Joguinho do Ursinho</span>
+</button>
+
                 <button class="game-card" data-game="quiz">
                     <span class="game-icon">❓</span>
                     <span class="game-title">Quiz do Amor</span>
                 </button>
-                <button class="game-card" data-game="click">
-                    <span class="game-icon">💥</span>
-                    <span class="game-title">Clique Rápido</span>
-                </button>
+
             </div>
         </div>
     </div>
@@ -75,7 +93,37 @@
         <p class="memory-score">Pares encontrados: <span>0</span>/6</p>
     </div>
 
-    <!-- Quiz do Amor -->
+    <!-- Joguinho do Ursinho -->
+<div id="urso-game" class="game-container" style="display:none;">
+    <div class="game-header">
+        <h4>Joguinho do Ursinho 🧸</h4>
+        <button class="btn-close-game">&times;</button>
+    </div>
+
+    <div class="game" id="game">
+        <div id="goal">Pegue 3 moedas para ganhar o jogo!</div>
+        <div id="character">🧸</div>
+        <div id="obstacle">💣</div>
+        <div id="score">Pontos: 0</div>
+        <div id="coins">Moedas: 0</div>
+
+        <div id="gameOver">
+            Game Over 😭<br>
+            <div id="finalScore"></div>
+            <button id="restart-btn">Tentar de novo</button>
+        </div>
+
+        <div id="winScreen">
+            Você conseguiu!!! PARABÉNS💘💘💘<br>
+            <div id="finalScoreWin"></div>
+                <button>EU TE AMO!</button>
+            </a>
+        </div>
+    </div>
+</div>
+
+
+    <!-- Quiz -->
     <div id="quiz-game" class="game-container" style="display:none;">
         <div class="game-header">
             <h4>Quiz do Amor</h4>
@@ -87,17 +135,6 @@
         </div>
     </div>
 
-    <!-- Clique Rápido -->
-    <div id="click-game" class="game-container" style="display:none;">
-        <div class="game-header">
-            <h4>Clique Rápido</h4>
-            <button class="btn-close-game">&times;</button>
-        </div>
-        <div class="click-game-content">
-            <p>Tempo: <span id="click-timer">30</span>s | Cliques: <span id="click-count">0</span></p>
-            <button id="clickable-btn" class="clickable">Clique!</button>
-        </div>
-    </div>
 
     <section class="home" id="home">
         <div class="home-content">

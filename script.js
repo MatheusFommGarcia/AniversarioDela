@@ -174,20 +174,247 @@ function closeGame() {
   })
 }
 
-// Iniciar jogo específico
+/* ---------- Substitua/adicione isto no script.js (fim do arquivo) ---------- */
+
 function startGame(game) {
-  closeGame()
-  const gameContainer = document.getElementById(game + "-game")
-  gameContainer.style.display = "block"
+  closeGame();
+  const gameContainer = document.getElementById(game + "-game");
+  if (!gameContainer) return;
+  gameContainer.style.display = "block";
 
-  // Corrigido: botão “X” agora fecha o jogo corretamente
-  const closeButton = gameContainer.querySelector(".btn-close-game")
-  if (closeButton) closeButton.onclick = closeGame
+  // botão "X" fecha o jogo
+  const closeButton = gameContainer.querySelector(".btn-close-game");
+  if (closeButton) closeButton.onclick = closeGame;
 
-  if (game === "memory") initMemoryGame()
-  if (game === "quiz") initQuizGame()
-  if (game === "click") initClickGame()
+  // inicializa o jogo específico
+  if (game === "memory") initMemoryGame();
+  else if (game === "quiz") initQuizGame();
+  else if (game === "click") initClickGame();
+  else if (game === "urso") initUrsoGame();
 }
+
+/* === JOGO DO URSINHO (implementação completa e auto-contida) === */
+function initUrsoGame() {
+  // elementos
+  const container = document.getElementById("game"); // dentro de #urso-game
+  const character = document.getElementById("character");
+  const obstacle = document.getElementById("obstacle");
+  const scoreEl = document.getElementById("score");
+  const coinsEl = document.getElementById("coins");
+  const gameOverEl = document.getElementById("gameOver");
+  const finalScoreEl = document.getElementById("finalScore");
+  const winScreen = document.getElementById("winScreen");
+  const finalScoreWin = document.getElementById("finalScoreWin");
+  const restartBtn = document.getElementById("restart-btn");
+
+  // estado
+  let coins = 0;
+  let points = 0;
+  let gameActive = true;
+  let collisionInterval = null;
+  let spawnInterval = null;
+
+  // Reset visual/estado inicial
+  function resetVisuals() {
+    // esconder telas
+    gameOverEl.style.display = "none";
+    winScreen.style.display = "none";
+
+    // reset counters
+    coins = 0;
+    points = 0;
+    scoreEl.textContent = `Pontos: ${points}`;
+    coinsEl.textContent = `Moedas: ${coins}`;
+
+    // limpa moedas existentes
+    container.querySelectorAll(".coin").forEach(c => c.remove());
+
+    // restaura animações do obstáculo
+    obstacle.style.animation = ""; // volta a aplicar o CSS animation
+    obstacle.style.left = ""; // deixa o CSS controlar
+    character.classList.remove("jump");
+    character.style.bottom = "";
+    gameActive = true;
+  }
+
+  resetVisuals();
+
+  // Função pulo (usa a classe .jump do CSS que já existe)
+  function jump() {
+    if (!gameActive) return;
+    if (character.classList.contains("jump")) return;
+    character.classList.add("jump");
+    // remove após duração da animação (0.5s)
+    setTimeout(() => character.classList.remove("jump"), 500);
+  }
+
+  // Cria uma moeda que atravessa a tela com animation definida no CSS (ursoCoinMove)
+  function spawnCoin() {
+    if (!gameActive) return;
+    const coin = document.createElement("div");
+    coin.className = "coin";
+    coin.textContent = "🪙";
+    // posicione verticalmente aleatório (para pegar com pulo)
+    const bottomPx = Math.floor(Math.random() * 90); // 0..90px
+    coin.style.bottom = `${20 + bottomPx}px`;
+    // garante que a animação comece da direita
+    coin.style.left = "100%";
+    // usa a keyframes ursoCoinMove (definido no CSS que você já colocou)
+    coin.style.animation = "ursoCoinMove 3s linear forwards";
+    // quando terminar a animação remove o elemento
+    coin.addEventListener("animationend", () => coin.remove());
+    container.appendChild(coin);
+  }
+
+  // Inicia spawn periódico de moedas
+  function startSpawningCoins() {
+    spawnInterval = setInterval(spawnCoin, 1200); // a cada 1.2s
+    // spawn inicial imediato
+    spawnCoin();
+  }
+
+  // Para spawn de moedas
+  function stopSpawningCoins() {
+    if (spawnInterval) {
+      clearInterval(spawnInterval);
+      spawnInterval = null;
+    }
+  }
+
+  // Checa colisão entre dois elementos via bounding boxes
+  function isColliding(el1, el2) {
+    if (!el1 || !el2) return false;
+    const r1 = el1.getBoundingClientRect();
+    const r2 = el2.getBoundingClientRect();
+    return !(
+      r1.top > r2.bottom ||
+      r1.bottom < r2.top ||
+      r1.left > r2.right ||
+      r1.right < r2.left
+    );
+  }
+
+  // Loop que verifica colisões (obstáculo e moedas)
+  function startCollisionLoop() {
+    collisionInterval = setInterval(() => {
+      if (!gameActive) return;
+
+      // colisão com bomba (obstacle)
+      if (isColliding(character, obstacle)) {
+        // GAME OVER
+        gameActive = false;
+        obstacle.style.animation = "none";
+        stopSpawningCoins();
+        clearInterval(collisionInterval);
+        finalScoreEl.textContent = `Pontos: ${points} | Moedas: ${coins}`;
+        gameOverEl.style.display = "block";
+      }
+
+      // colisão com moedas -- iterar moedas existentes
+      const coinsEls = container.querySelectorAll(".coin");
+      coinsEls.forEach(c => {
+        if (isColliding(character, c)) {
+          // coletou
+          coins += 1;
+          points += 10;
+          coinsEl.textContent = `Moedas: ${coins}`;
+          scoreEl.textContent = `Pontos: ${points}`;
+          // animação de coleta (remover)
+          c.remove();
+
+          // vitória quando coletar 5 moedas
+          if (coins >= 3 && gameActive) {
+            gameActive = false;
+            obstacle.style.animation = "none";
+            stopSpawningCoins();
+            clearInterval(collisionInterval);
+            finalScoreWin.textContent = `Você fez ${points} pontos e coletou ${coins} moedas!`;
+            winScreen.style.display = "block";
+          }
+        }
+      });
+    }, 60); // 60ms é responsivo o suficiente
+  }
+
+  // Reiniciar jogo (quando clicar em tentar de novo)
+  function restartGame() {
+    resetVisuals();
+    // reinicia animações do obstáculo: reflow forçando restart
+    obstacle.style.animation = "none";
+    // forçar reflow
+    void obstacle.offsetWidth;
+    obstacle.style.animation = "ursoObstacleMove 2s linear infinite";
+    startSpawningCoins();
+    startCollisionLoop();
+  }
+
+  // Eventos: clique na área do jogo, mousedown, e teclado
+  // clique/tap
+  container.onclick = (e) => {
+    // se clicar no botão de restart ou telas não dispara pulo
+    const target = e.target;
+    if (target === restartBtn || target.closest("#gameOver") || target.closest("#winScreen")) return;
+    jump();
+  };
+
+  // mouse down também funciona
+  container.onmousedown = () => jump();
+
+  // teclado: Espaço / ArrowUp / W
+  function keyHandler(e) {
+    if ([" ", "ArrowUp", "w", "W"].includes(e.key)) {
+      e.preventDefault();
+      jump();
+    }
+  }
+  document.addEventListener("keydown", keyHandler);
+
+  // botão de restart no Game Over
+  if (restartBtn) {
+    restartBtn.onclick = () => {
+      restartGame();
+    };
+  }
+
+  // se winScreen tiver botão "EU TE AMO!" — recarregar ou fechar
+  const winBtn = winScreen.querySelector("button");
+  if (winBtn) {
+    winBtn.onclick = () => {
+      // fecha o jogo (opcional) — aqui só fecha a tela de vitória
+      closeGame();
+    };
+  }
+
+  // Ao abrir o jogo, iniciar spawn e checagem de colisões
+  // Para evitar múltiplas instâncias, limpe intervalos antigos (se existirem)
+  if (collisionInterval) { clearInterval(collisionInterval); collisionInterval = null; }
+  if (spawnInterval) { clearInterval(spawnInterval); spawnInterval = null; }
+
+  // start
+  // Força reinício visível ao abrir
+  obstacle.style.animation = "ursoObstacleMove 2s linear infinite";
+  startSpawningCoins();
+  startCollisionLoop();
+
+  // quando fecha o jogo, limpar tudo
+  // override closeGame para também limpar intervalos — mas sem quebrar outras funcionalidades:
+  const originalCloseGame = closeGame;
+  closeGame = function() {
+    // limpa timers locais
+    stopSpawningCoins();
+    if (collisionInterval) { clearInterval(collisionInterval); collisionInterval = null; }
+    // remove event listeners que adicionamos
+    container.onclick = null;
+    container.onmousedown = null;
+    document.removeEventListener("keydown", keyHandler);
+    // restaura comportamento original de fechar (esconder containers)
+    originalCloseGame();
+    // restaura closeGame original na variável global (para não empilhar)
+    closeGame = originalCloseGame;
+  };
+}
+/* ---------- fim do trecho a inserir ---------- */
+
 
 // ==============================
 // Jogo da Memória
@@ -311,45 +538,6 @@ function answerQuiz(selected, correct) {
   }, 1500)
 }
 
-// ==============================
-// Clique Rápido
-// ==============================
-let clickCount = 0
-let clickGameActive = false
-
-function initClickGame() {
-  clickCount = 0
-  clickGameActive = true
-  document.getElementById("click-count").innerHTML = "0"
-  document.getElementById("click-timer").innerHTML = "30"
-
-  const clickBtn = document.getElementById("clickable-btn")
-  clickBtn.classList.remove("finished")
-  clickBtn.innerHTML = "Clique!"
-
-  const clickHandler = () => {
-    if (clickGameActive) {
-      clickCount++
-      document.getElementById("click-count").innerHTML = clickCount
-    }
-  }
-
-  clickBtn.onclick = clickHandler
-
-  let timeLeft = 30
-  const timer = setInterval(() => {
-    timeLeft--
-    document.getElementById("click-timer").innerHTML = timeLeft
-
-    if (timeLeft <= 0) {
-      clearInterval(timer)
-      clickGameActive = false
-      clickBtn.classList.add("finished")
-      clickBtn.innerHTML = "⏱️"
-      alert(`Tempo acabou! Você fez ${clickCount} cliques! 💪`)
-    }
-  }, 1000)
-}
 
 function initializeGames() {
   // nada extra aqui no momento
@@ -419,4 +607,3 @@ musicBtn.addEventListener("click", () => {
     }
   })
 }
-

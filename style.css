@@ -1,3 +1,14 @@
+/* === Cores exclusivas do Jogo do Ursinho === */
+:root {
+  --urso-bg: #9762b8;
+  --urso-borda: #000000;
+  --urso-destaque: #9d00ff;
+  --urso-moeda: #ff0000;
+  --urso-texto: #000000;
+  --urso-fonte: 'Comic Sans MS', cursive;
+}
+
+
 :root {
   --main-color: #9d00ff;
   --accent-color: #ff0000;
@@ -51,11 +62,19 @@ body {
   color: rgba(255, 255, 255, 0.3);
   font-size: 2rem;
   animation: float 10s linear infinite;
+  animation-fill-mode: both;
+  opacity: 0;
+  transform: translateY(-20vh);
+  animation-delay: calc(var(--delay, 0s));
 }
+
 
 @keyframes float {
   0% {
-    transform: translateY(-10%) rotate(0deg);
+    transform: translateY(-20vh) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
     opacity: 1;
   }
   100% {
@@ -63,6 +82,7 @@ body {
     opacity: 0;
   }
 }
+
 
 .background-hearts span:nth-child(1) {
   left: 10%;
@@ -114,6 +134,12 @@ body {
   animation-delay: 4.5s;
   font-size: 1.9rem;
 }
+
+/* Faz os corações começarem invisíveis e surgirem só quando a animação começa */
+.background-hearts span {
+  animation-fill-mode: forwards;
+}
+
 
 /* Header */
 header {
@@ -614,45 +640,6 @@ footer {
   border-color: #ff0000;
 }
 
-/* Click Game */
-.click-game-content {
-  text-align: center;
-  padding: 2rem;
-}
-
-.click-game-content p {
-  font-size: 1.2rem;
-  margin-bottom: 2rem;
-  font-weight: 600;
-}
-
-.clickable {
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
-  border: none;
-  background: linear-gradient(135deg, var(--accent-color), #ff3333);
-  color: white;
-  font-size: 3rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 8px 25px rgba(255, 0, 0, 0.4);
-}
-
-.clickable:hover {
-  transform: scale(1.1);
-  box-shadow: 0 12px 35px rgba(255, 0, 0, 0.6);
-}
-
-.clickable:active {
-  transform: scale(0.95);
-}
-
-.clickable.finished {
-  background: linear-gradient(135deg, #333333, #555555);
-  cursor: not-allowed;
-}
-
 /* Responsividade */
 @media (max-width: 768px) {
   header {
@@ -723,4 +710,174 @@ footer {
   .modal-content {
     max-height: 80vh;
   }
+}
+
+/* ===========================
+   🎮 Estilos do Jogo do Ursinho
+   =========================== */
+#urso-game {
+  background: linear-gradient(135deg,
+    rgba(255, 240, 245, 0.8),
+    rgba(255, 0, 212, 0.3) 
+    );
+  border: 2px solid var(--urso-borda);
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  font-family: var(--urso-fonte);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: var(--urso-texto);
+}
+
+
+#urso-game .titulo {
+  text-align: center;
+  color: var(--urso-texto);
+  margin-bottom: 10px;
+  font-size: 20px;
+}
+
+#urso-game .game {
+  width: 95%;
+  max-width: 600px;
+  height: 220px;
+  background-color: #fff;
+  border: 4px dashed var(--urso-borda);
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+  touch-action: manipulation;
+}
+
+#urso-game #character {
+  font-size: 35px;
+  position: absolute;
+  bottom: 0;
+  left: 50px;
+  transition: bottom 0.2s;
+}
+
+#urso-game #obstacle {
+  font-size: 30px;
+  position: absolute;
+  bottom: 0;
+  left: 100%;
+  animation: ursoObstacleMove 2s linear infinite;
+}
+
+#urso-game .coin {
+  font-size: 24px;
+  position: absolute;
+  animation: ursoCoinMove 3s linear infinite;
+}
+
+@keyframes ursoObstacleMove {
+  0% { left: 100%; }
+  100% { left: -40px; }
+}
+
+/* 💣 Bomba agora leva 4 segundos em vez de 2 */
+#urso-game #obstacle {
+  font-size: 30px;
+  position: absolute;
+  bottom: 0;
+  left: 100%;
+  animation: ursoObstacleMove 4s linear infinite;
+}
+
+/* 🪙 Moedas agora se movem mais devagar (5s em vez de 3) */
+#urso-game .coin {
+  font-size: 24px;
+  position: absolute;
+  animation: ursoCoinMove 5s linear infinite;
+}
+
+@keyframes ursoCoinMove {
+  0% { left: 100%; }
+  100% { left: -40px; }
+}
+
+/* 🧸 Aumenta a altura do pulo e o tempo do salto */
+/* 🧸 Pulo ajustado: altura média e queda suave */
+/* 🧸 Pulo com queda suave e movimento mais natural */
+#urso-game .jump {
+  animation: ursoJump 1s cubic-bezier(0.28, 0.84, 0.42, 1); 
+}
+
+/* Curva personalizada:
+   - sobe rápido (inicio forte)
+   - segura levemente no topo
+   - desce suavemente (como gravidade real) */
+@keyframes ursoJump {
+  0% {
+    bottom: 0;
+  }
+  35% {
+    bottom: 120px; /* altura do pulo */
+  }
+  55% {
+    bottom: 130px; /* leve sustentação no topo */
+  }
+  100% {
+    bottom: 0;
+  }
+}
+
+#urso-game #gameOver,
+#urso-game #winScreen {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  padding: 20px;
+  border: 2px solid var(--urso-destaque);
+  border-radius: 10px;
+  text-align: center;
+  display: none;
+}
+
+#urso-game #gameOver button,
+#urso-game #winScreen button {
+  margin-top: 10px;
+  padding: 10px 20px;
+  background: var(--urso-destaque);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#urso-game #score,
+#urso-game #coins {
+  position: absolute;
+  top: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  color: var(--urso-moeda);
+}
+
+#urso-game #score {
+  right: 15px;
+}
+
+#urso-game #coins {
+  left: 15px;
+}
+
+#urso-game #goal {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: #ffffff;
+  color: var(--urso-texto);
+  font-size: 16px;
+  font-weight: bold;
+  padding: 5px;
+  text-align: center;
+  z-index: 999;
+  border-bottom: 2px dashed #ff69b4;
 }
